@@ -1,41 +1,35 @@
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, MessageHandler, filters
-import os
 import asyncio
+import os
 
 TOKEN = os.getenv("TOKEN")
 CHAT_ID = os.getenv("CHAT_ID")
-CHANNEL_USERNAME = "@modzilaapk"  # Ganti dengan username channel kamu
-WATERMARK_TEXT = f"📌 Premium pro applications and modifications only in: {CHANNEL_USERNAME}"
-
 bot = Bot(token=TOKEN)
 
-async def process_message(update, context):
+async def add_buttons(update, context):
     """Menambahkan teks watermark dan tombol ke pesan berisi file APK."""
     message = update.channel_post  # Ambil pesan yang baru dikirim di channel
     if message and message.document:  # Cek apakah pesan mengandung file (APK)
-        try:
-            # Edit pesan untuk menambahkan watermark
-            new_caption = (message.caption or "") + f"\n\n{WATERMARK_TEXT}"
-            await bot.edit_message_caption(
-                chat_id=CHAT_ID, 
-                message_id=message.message_id, 
-                caption=new_caption
-            )
+        watermark_text = "📌 Premium pro applications and modifications only in: @modzilaapk"
 
-            # Tambahkan tombol watermark
-            buttons = [[InlineKeyboardButton("🔹 Modzilla™ 🔹", url=f"https://t.me/{CHANNEL_USERNAME[1:]}")]]
-            reply_markup = InlineKeyboardMarkup(buttons)
+        # Edit pesan untuk menambahkan watermark
+        new_caption = (message.caption or "") + "\n\n" + watermark_text
+        await bot.edit_message_caption(
+            chat_id=CHAT_ID, 
+            message_id=message.message_id, 
+            caption=new_caption
+        )
 
-            # Edit pesan untuk menambahkan tombol
-            await bot.edit_message_reply_markup(chat_id=CHAT_ID, message_id=message.message_id, reply_markup=reply_markup)
+        # Tambahkan tombol watermark
+        buttons = [[InlineKeyboardButton("🔹 Modzilla™ 🔹", url="https://t.me/modzilaapk")]]
+        reply_markup = InlineKeyboardMarkup(buttons)
 
-        except Exception as e:
-            print(f"Error: {e}")
+        await asyncio.sleep(1)  # Tunggu sebentar biar pesan terkirim dulu
+        await bot.edit_message_reply_markup(chat_id=CHAT_ID, message_id=message.message_id, reply_markup=reply_markup)
 
 app = Application.builder().token(TOKEN).build()
-app.add_handler(MessageHandler(filters.Document.ALL, process_message))
+app.add_handler(MessageHandler(filters.Document.ALL, add_buttons))
 
-if __name__ == "__main__":
-    print("Bot Auto Watermark berjalan...")
-    app.run_polling()
+print("Bot sedang berjalan...")
+app.run_polling()
