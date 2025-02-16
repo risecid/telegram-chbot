@@ -1,33 +1,46 @@
-GNU nano 8.3                             bot.py
-from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, MessageHandler, Filters
-import time
+import os
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Updater, CallbackQueryHandler, MessageHandler, filters, CallbackContext
 
-TOKEN = "1238817594:AAERSGFlgsTT0wchCnuVCFijUIUcgvPPc5A"
-CHAT_ID = "-1001444745539"  # Ganti dengan chat ID channel kamu
-
+# Ambil TOKEN dari environment variables (Railway)
+TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
 
-def add_buttons(update, context):
-    """Menambahkan tombol Like & Dislike ke pesan baru di channel."""
-    message = update.channel_post  # Ambil pesan yang baru dikirim di channel
-    if message.document:  # Cek apakah pesan mengandung file (APK)
-        buttons = [[
-            InlineKeyboardButton("👍", callback_data="like"),
-            InlineKeyboardButton("👎", callback_data="dislike")
-        ]]
-        reply_markup = InlineKeyboardMarkup(buttons)
+def send_post(update: Update, context: CallbackContext):
+    """Mengirim pesan dengan tombol Like & Dislike"""
+    message = update.channel_post  # Ambil pesan dari channel
+    keyboard = [
+        [InlineKeyboardButton("👍 Like", callback_data="like"),
+         InlineKeyboardButton("👎 Dislike", callback_data="dislike")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-        # Edit pesan untuk menambahkan tombol
-        time.sleep(1)  # Tunggu sebentar biar pesan terkirim dulu
-        bot.edit_message_reply_markup(chat_id=CHAT_ID, message_id=message.message_id, r>
+    bot.send_message(
+        chat_id=message.chat_id,
+        text=message.text if message.text else "File baru!",
+        reply_markup=reply_markup
+    )
 
+def button_callback(update: Update, context: CallbackContext):
+    """Menangani tombol Like & Dislike"""
+    query = update.callback_query
+    query.answer()
+
+    if query.data == "like":
+        query.edit_message_text(text="👍 Anda menyukai ini!")
+    elif query.data == "dislike":
+        query.edit_message_text(text="👎 Anda tidak menyukai ini!")
+
+# Setup bot
 updater = Updater(TOKEN, use_context=True)
 dp = updater.dispatcher
 
-# Handler untuk mendeteksi pesan baru di channel
-dp.add_handler(MessageHandler(Filters.document, add_buttons))
+# Tangkap pesan baru di channel & tambahkan tombol
+dp.add_handler(MessageHandler(filters.ALL, send_post))
 
-print("Bot sedang berjalan...")
+# Tangkap tombol yang ditekan
+dp.add_handler(CallbackQueryHandler(button_callback))
+
+print("Bot berjalan...")
 updater.start_polling()
 updater.idle()
