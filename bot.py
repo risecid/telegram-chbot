@@ -11,7 +11,7 @@ async def add_buttons(update, context):
     """Menambahkan teks watermark dan tombol ke pesan berisi file APK."""
     message = update.channel_post  # Ambil pesan yang baru dikirim di channel
     if message and message.document:  # Cek apakah pesan mengandung file (APK)
-        watermark_text = "📌 Premium pro applications and modifications only in: @modzilaapk"
+        watermark_text = "📌 Premium pro applications and modifications only in: @modzillaapk"
 
         # Edit pesan untuk menambahkan watermark
         new_caption = (message.caption or "") + "\n\n" + watermark_text
