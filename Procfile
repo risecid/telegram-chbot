@@ -1,1 +1,2 @@
-web: chmod +x start.sh && ./start.sh
+caption: python3 wm.py
+tombol: python3 button.py
