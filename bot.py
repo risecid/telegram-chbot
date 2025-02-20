@@ -9,44 +9,28 @@ bot = Bot(token=TOKEN)
 
 async def add_buttons(update, context):
     """Menambahkan teks watermark dan tombol ke pesan berisi file APK."""
-    message = update.effective_message  # Ambil pesan terbaru, bisa dari channel/grup
+    message = update.effective_message  
 
     if message and message.document:  # Cek apakah pesan mengandung file (APK)
         watermark_text = "📌 Premium pro applications and modifications only in: @modzilaapk"
         new_caption = (message.caption or "") + "\n\n" + watermark_text
 
-        # Tambahkan delay agar tidak terlalu cepat
-        await asyncio.sleep(5)  
+        buttons = [[InlineKeyboardButton("🔹 Modzilla™ 🔹", url="https://t.me/modzilaapk")]]
+        reply_markup = InlineKeyboardMarkup(buttons)
+
+        await asyncio.sleep(5)  # Tambahkan delay agar tidak terlalu cepat
 
         try:
-            # Cek apakah caption sudah mengandung watermark, agar tidak diedit ulang
-            if watermark_text not in (message.caption or ""):
-                await bot.edit_message_caption(
-                    chat_id=message.chat_id, 
-                    message_id=message.message_id, 
-                    caption=new_caption,
-                    parse_mode="HTML"
-                )
-                print("Caption berhasil diedit")
-            else:
-                print("Caption sudah ada, tidak perlu diedit")
-        except Exception as e:
-            print(f"Error edit caption: {e}")  # Debug jika error
-
-        try:
-            # Tambahkan tombol watermark
-            buttons = [[InlineKeyboardButton("🔹 Modzilla™ 🔹", url="https://t.me/modzilaapk")]]
-            reply_markup = InlineKeyboardMarkup(buttons)
-
-            await asyncio.sleep(3)  # Tambahkan delay sebelum edit tombol
-            await bot.edit_message_reply_markup(
+            await bot.edit_message_caption(
                 chat_id=message.chat_id, 
                 message_id=message.message_id, 
-                reply_markup=reply_markup
+                caption=new_caption,
+                reply_markup=reply_markup,  # Tambahkan tombol di sini langsung
+                parse_mode="HTML"
             )
-            print("Tombol berhasil ditambahkan")
+            print("Caption & Tombol berhasil ditambahkan")
         except Exception as e:
-            print(f"Error edit reply markup: {e}")  # Debug jika error
+            print(f"Error edit caption & tombol: {e}")
 
 app = Application.builder().token(TOKEN).build()
 app.add_handler(MessageHandler(filters.Document.ALL, add_buttons))
