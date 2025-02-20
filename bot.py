@@ -13,18 +13,23 @@ async def add_buttons(update, context):
 
     if message and message.document:  # Cek apakah pesan mengandung file (APK)
         watermark_text = "📌 Premium pro applications and modifications only in: @modzilaapk"
-        
-        # Cek jika caption ada atau tidak, jika tidak, buat string kosong
         new_caption = (message.caption or "") + "\n\n" + watermark_text
 
+        # Tambahkan delay agar tidak terlalu cepat
+        await asyncio.sleep(5)  
+
         try:
-            # Edit pesan untuk menambahkan watermark
-            await asyncio.sleep(1)  # Beri jeda biar pesan sudah sepenuhnya dikirim
-            await bot.edit_message_caption(
-                chat_id=message.chat_id, 
-                message_id=message.message_id, 
-                caption=new_caption
-            )
+            # Cek apakah caption sudah mengandung watermark, agar tidak diedit ulang
+            if watermark_text not in (message.caption or ""):
+                await bot.edit_message_caption(
+                    chat_id=message.chat_id, 
+                    message_id=message.message_id, 
+                    caption=new_caption,
+                    parse_mode="HTML"
+                )
+                print("Caption berhasil diedit")
+            else:
+                print("Caption sudah ada, tidak perlu diedit")
         except Exception as e:
             print(f"Error edit caption: {e}")  # Debug jika error
 
@@ -33,12 +38,13 @@ async def add_buttons(update, context):
             buttons = [[InlineKeyboardButton("🔹 Modzilla™ 🔹", url="https://t.me/modzilaapk")]]
             reply_markup = InlineKeyboardMarkup(buttons)
 
-            await asyncio.sleep(1)  # Jeda agar edit tidak terlalu cepat
+            await asyncio.sleep(3)  # Tambahkan delay sebelum edit tombol
             await bot.edit_message_reply_markup(
                 chat_id=message.chat_id, 
                 message_id=message.message_id, 
                 reply_markup=reply_markup
             )
+            print("Tombol berhasil ditambahkan")
         except Exception as e:
             print(f"Error edit reply markup: {e}")  # Debug jika error
 
